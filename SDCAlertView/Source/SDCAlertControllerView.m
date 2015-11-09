@@ -101,6 +101,10 @@ static NSString *const SDCAlertControllerCellReuseIdentifier = @"SDCAlertControl
 	_visualStyle = visualStyle;
 	self.layer.masksToBounds = YES;
 	self.layer.cornerRadius = visualStyle.cornerRadius;
+  self.backgroundColor = visualStyle.backgroundColor;
+  
+  self.collectionViewLayout.minimumInteritemSpacing = visualStyle.minimumInteritemSpacing;
+  self.collectionViewLayout.minimumLineSpacing = visualStyle.minimumLineSpacing;
 	
 	[self sdc_addParallax:visualStyle.parallax];
 }
@@ -124,14 +128,18 @@ static NSString *const SDCAlertControllerCellReuseIdentifier = @"SDCAlertControl
 - (CGFloat)maximumHeightForScrollView {
 	CGFloat maximumHeight = CGRectGetHeight(self.superview.bounds) - self.visualStyle.margins.top - self.visualStyle.margins.bottom;
 	
+  NSLog(@"maximumHeight 1 %@", @(maximumHeight));
+  
 	if (self.actions.count > 0) {
 		if (self.collectionViewLayout.scrollDirection == UICollectionViewScrollDirectionHorizontal) {
 			maximumHeight -= self.visualStyle.actionViewHeight;
 		} else {
-			maximumHeight -= self.visualStyle.actionViewHeight * [self.actionsCollectionView numberOfItemsInSection:0];
+			maximumHeight -=  (self.visualStyle.actionViewHeight * [self.actionsCollectionView numberOfItemsInSection:0]);
 		}
 	}
 	
+  NSLog(@"maximumHeight 2 %@", @(maximumHeight));
+  
 	return maximumHeight;
 }
 
@@ -141,7 +149,7 @@ static NSString *const SDCAlertControllerCellReuseIdentifier = @"SDCAlertControl
 	
 	[self.visualEffectView.contentView addSubview:self.scrollView];
 	[self.scrollView finalizeElements];
-	
+  
 	[self.scrollView sdc_alignEdgesWithSuperview:UIRectEdgeLeft|UIRectEdgeTop|UIRectEdgeRight];
 	self.maximumHeightConstraint = [self.scrollView sdc_setMaximumHeight:[self maximumHeightForScrollView]];
 	
@@ -157,8 +165,12 @@ static NSString *const SDCAlertControllerCellReuseIdentifier = @"SDCAlertControl
 	[self.visualEffectView.contentView addSubview:self.actionsCollectionView];
 	[self.actionsCollectionView sdc_alignEdge:UIRectEdgeTop withEdge:UIRectEdgeBottom ofView:aligningView];
 	[self.actionsCollectionView sdc_alignEdgesWithSuperview:UIRectEdgeLeft|UIRectEdgeBottom|UIRectEdgeRight];
+  /*[self.actionsCollectionView sdc_alignEdge:UIRectEdgeBottom
+                                   withEdge:UIRectEdgeBottom
+                                     ofView:self
+                                      inset:10];*/
 	[self.actionsCollectionView sdc_pinHeight:[self collectionViewHeight]];
-	
+	  
 	[self addSubview:self.visualEffectView];
 	[self.visualEffectView sdc_alignEdgesWithSuperview:UIRectEdgeAll];
 }
@@ -194,13 +206,13 @@ static NSString *const SDCAlertControllerCellReuseIdentifier = @"SDCAlertControl
 #pragma mark - UICollectionView
 
 - (CGFloat)collectionViewHeight {
-	CGFloat horizontalLayoutHeight = self.visualStyle.actionViewHeight;
-	CGFloat verticalLayoutHeight = self.visualStyle.actionViewHeight * [self.actionsCollectionView numberOfItemsInSection:0];
+	CGFloat horizontalLayoutHeight = self.visualStyle.actionViewHeight + self.collectionViewLayout.minimumInteritemSpacing * self.actions.count;
+	CGFloat verticalLayoutHeight = self.visualStyle.actionViewHeight * [self.actionsCollectionView numberOfItemsInSection:0] + self.collectionViewLayout.minimumLineSpacing;
 	
 	switch (self.actionLayout) {
 		case SDCAlertControllerActionLayoutAutomatic:		return (self.actions.count == 2) ? horizontalLayoutHeight : verticalLayoutHeight;
 		case SDCAlertControllerActionLayoutHorizontal:		return horizontalLayoutHeight;
-		case SDCAlertControllerActionLayoutVertical:		return verticalLayoutHeight;
+    case SDCAlertControllerActionLayoutVertical:		return verticalLayoutHeight + self.collectionViewLayout.minimumLineSpacing;
 	}
 }
 
@@ -222,11 +234,16 @@ static NSString *const SDCAlertControllerCellReuseIdentifier = @"SDCAlertControl
 				  layout:(UICollectionViewLayout *)collectionViewLayout
   sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
 	if (self.collectionViewLayout.scrollDirection == UICollectionViewScrollDirectionVertical) {
-		return CGSizeMake(CGRectGetWidth(self.bounds), self.visualStyle.actionViewHeight);
+		return CGSizeMake(CGRectGetWidth(self.bounds) - self.collectionViewLayout.minimumLineSpacing * self.actions.count, self.visualStyle.actionViewHeight);
 	} else {
 		CGFloat width = MAX(CGRectGetWidth(self.bounds) / self.actions.count, self.visualStyle.minimumActionViewWidth);
 		return CGSizeMake(width, self.visualStyle.actionViewHeight);
 	}
+}
+
+- (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout insetForSectionAtIndex:(NSInteger)section
+{
+  return UIEdgeInsetsMake(0, 30, 0, 30);
 }
 
 @end

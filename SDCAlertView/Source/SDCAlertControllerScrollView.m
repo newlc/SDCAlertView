@@ -24,9 +24,12 @@
 	self = [self init];
 	
 	if (self) {
-		_titleLabel = [[SDCAlertLabel alloc] init];
-		_titleLabel.attributedText = title;
-		[self addSubview:_titleLabel];
+    _titleLabel = nil;
+    if (title) {
+      _titleLabel = [[SDCAlertLabel alloc] init];
+      _titleLabel.attributedText = title;
+      [self addSubview:_titleLabel];
+    }
 		
 		_messageLabel = [[SDCAlertLabel alloc] init];
 		_messageLabel.attributedText = message;
@@ -77,26 +80,28 @@
 #pragma mark - Layout
 
 - (void)finalizeElements {
+  if (self.titleLabel) {
 	[self.titleLabel sdc_alignEdgesWithSuperview:UIRectEdgeLeft insets:self.visualStyle.contentPadding];
 	[self.titleLabel sdc_pinWidthToWidthOfView:self offset:-(self.visualStyle.contentPadding.left + self.visualStyle.contentPadding.right)];
-	
-	[self.messageLabel sdc_alignEdges:UIRectEdgeLeft|UIRectEdgeRight withView:self.titleLabel];
-	
-	[self addConstraint:[NSLayoutConstraint constraintWithItem:self.titleLabel
-													 attribute:NSLayoutAttributeFirstBaseline
-													 relatedBy:NSLayoutRelationEqual
-														toItem:self
-													 attribute:NSLayoutAttributeTop
-													multiplier:1
-													  constant:self.visualStyle.contentPadding.top]];
-	
-	[self addConstraint:[NSLayoutConstraint constraintWithItem:self.messageLabel
-													 attribute:NSLayoutAttributeFirstBaseline
-													 relatedBy:NSLayoutRelationEqual
-														toItem:self.titleLabel
-													 attribute:NSLayoutAttributeLastBaseline
-													multiplier:1
-													  constant:self.visualStyle.labelSpacing]];
+    
+    [self.messageLabel sdc_alignEdges:UIRectEdgeLeft|UIRectEdgeRight withView:self.titleLabel];
+    
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.titleLabel
+                                                     attribute:NSLayoutAttributeFirstBaseline
+                                                     relatedBy:NSLayoutRelationEqual
+                                                        toItem:self
+                                                     attribute:NSLayoutAttributeTop
+                                                    multiplier:1
+                                                      constant:self.visualStyle.contentPadding.top]];
+  
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.messageLabel
+                                                     attribute:NSLayoutAttributeFirstBaseline
+                                                     relatedBy:NSLayoutRelationEqual
+                                                        toItem:self.titleLabel
+                                                     attribute:NSLayoutAttributeLastBaseline
+                                                    multiplier:1
+                                                      constant:self.visualStyle.labelSpacing]];
+  }
 	
 	if (self.textFieldViewController) {
 		[self.textFieldViewController.view sdc_alignEdges:UIRectEdgeLeft|UIRectEdgeRight withView:self.titleLabel];

@@ -65,6 +65,7 @@
 - (void)updateWithAction:(SDCAlertAction *)action visualStyle:(id<SDCAlertControllerVisualStyle>)visualStyle {
 	self.textLabel.font = [visualStyle fontForAction:action];
 	self.textLabel.textColor = [visualStyle textColorForAction:action];
+  self.backgroundColor = [visualStyle backgroundColorForAction:action];
 	
 	if (action.attributedTitle) {
 		self.textLabel.attributedText = action.attributedTitle;

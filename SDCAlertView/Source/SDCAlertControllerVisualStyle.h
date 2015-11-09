@@ -23,6 +23,7 @@
 
 /// The alert's parallax magnitude in horizontal and vertical directions.
 @property (nonatomic, readonly) UIOffset parallax;
+@property (nonatomic, readonly) UIColor *backgroundColor;
 
 #pragma mark - Title & Message Labels
 
@@ -47,6 +48,10 @@
 
 - (UIColor *)textColorForAction:(SDCAlertAction *)action;
 - (UIFont *)fontForAction:(SDCAlertAction *)action;
+- (UIColor *)backgroundColorForAction:(SDCAlertAction *)action;
+
+@property (nonatomic, readonly) CGFloat minimumInteritemSpacing;
+@property (nonatomic, readonly) CGFloat minimumLineSpacing;
 
 #pragma mark - Text Fields
 
